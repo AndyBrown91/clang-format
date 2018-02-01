@@ -62,7 +62,7 @@ private:
     if (NonTemplateLess.count(CurrentToken->Previous))
       return false;
 
-    const FormatToken &Previous = *CurrentToken->Previous;  // The '<'.
+    const FormatToken &Previous = *CurrentToken->Previous; // The '<'.
     if (Previous.Previous) {
       if (Previous.Previous->Tok.isLiteral())
         return false;
@@ -366,7 +366,7 @@ private:
       // specifier parameter, although this is technically valid:
       // [[foo(:)]]
       if (AttrTok->is(tok::colon) ||
-          AttrTok->startsSequence(tok::identifier, tok::identifier) || 
+          AttrTok->startsSequence(tok::identifier, tok::identifier) ||
           AttrTok->startsSequence(tok::r_paren, tok::identifier))
         return false;
       if (AttrTok->is(tok::ellipsis))
@@ -523,11 +523,11 @@ private:
         // Here, we set FirstObjCSelectorName when the end of the method call is
         // reached, in case it was not set already.
         if (!Contexts.back().FirstObjCSelectorName) {
-            FormatToken* Previous = CurrentToken->getPreviousNonComment();
-            if (Previous && Previous->is(TT_SelectorName)) {
-              Previous->ObjCSelectorNameParts = 1;
-              Contexts.back().FirstObjCSelectorName = Previous;
-            }
+          FormatToken *Previous = CurrentToken->getPreviousNonComment();
+          if (Previous && Previous->is(TT_SelectorName)) {
+            Previous->ObjCSelectorNameParts = 1;
+            Contexts.back().FirstObjCSelectorName = Previous;
+          }
         } else {
           Left->ParameterCount =
               Contexts.back().FirstObjCSelectorName->ObjCSelectorNameParts;
@@ -1388,7 +1388,8 @@ private:
         Current.Type = Current.Previous->Type;
       }
     } else if (canBeObjCSelectorComponent(Current) &&
-               // FIXME(bug 36976): ObjC return types shouldn't use TT_CastRParen.
+               // FIXME(bug 36976): ObjC return types shouldn't use
+               // TT_CastRParen.
                Current.Previous && Current.Previous->is(TT_CastRParen) &&
                Current.Previous->MatchingParen &&
                Current.Previous->MatchingParen->Previous &&
@@ -2414,9 +2415,9 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
   if (Right.isOneOf(tok::semi, tok::comma))
     return false;
   if (Right.is(tok::less) && Line.Type == LT_ObjCDecl) {
-    bool IsLightweightGeneric =
-        Right.MatchingParen && Right.MatchingParen->Next &&
-        Right.MatchingParen->Next->is(tok::colon);
+    bool IsLightweightGeneric = Right.MatchingParen &&
+                                Right.MatchingParen->Next &&
+                                Right.MatchingParen->Next->is(tok::colon);
     return !IsLightweightGeneric && Style.ObjCSpaceBeforeProtocolList;
   }
   if (Right.is(tok::less) && Left.is(tok::kw_template))
@@ -2538,7 +2539,18 @@ bool TokenAnnotator::spaceRequiredBetween(const AnnotatedLine &Line,
               (!Left.Previous || Left.Previous->isNot(tok::period))))) ||
            (Style.SpaceBeforeParens == FormatStyle::SBPO_Always &&
             (Left.is(tok::identifier) || Left.isFunctionLikeKeyword() ||
-             Left.is(tok::r_paren)) &&
+             Left.is(tok::r_paren) ||
+             (Left.Tok.getIdentifierInfo() &&
+              Left.Tok.getIdentifierInfo()->isKeyword(
+                  getFormattingLangOpts(Style)))) &&
+            Line.Type != LT_PreprocessorDirective) ||
+           (Style.SpaceBeforeParens == FormatStyle::SBPO_NonEmptyParentheses &&
+            Right.ParameterCount >= 1 &&
+            (Left.is(tok::identifier) || Left.isFunctionLikeKeyword() ||
+             Left.is(tok::r_square) || Left.is(tok::r_paren) ||
+             (Left.Tok.getIdentifierInfo() &&
+              Left.Tok.getIdentifierInfo()->isKeyword(
+                  getFormattingLangOpts(Style)))) &&
             Line.Type != LT_PreprocessorDirective);
   }
   if (Left.is(tok::at) && Right.Tok.getObjCKeywordID() != tok::objc_not_keyword)
@@ -2601,7 +2613,8 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
     // Slashes occur in text protocol extension syntax: [type/type] { ... }.
     if (Left.is(tok::slash) || Right.is(tok::slash))
       return false;
-    if (Left.MatchingParen && Left.MatchingParen->is(TT_ProtoExtensionLSquare) &&
+    if (Left.MatchingParen &&
+        Left.MatchingParen->is(TT_ProtoExtensionLSquare) &&
         Right.isOneOf(tok::l_brace, tok::less))
       return !Style.Cpp11BracedListStyle;
     // A percent is probably part of a formatting specification, such as %lld.
@@ -2729,7 +2742,9 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
       Left.isOneOf(TT_TrailingReturnArrow, TT_LambdaArrow))
     return true;
   if (Right.is(TT_OverloadedOperatorLParen))
-    return Style.SpaceBeforeParens == FormatStyle::SBPO_Always;
+    return Style.SpaceBeforeParens == FormatStyle::SBPO_Always ||
+           (Style.SpaceBeforeParens == FormatStyle::SBPO_NonEmptyParentheses &&
+            Right.ParameterCount >= 1);
   if (Left.is(tok::comma))
     return true;
   if (Right.is(tok::comma))
@@ -2813,7 +2828,9 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
     return true;
   if (Left.is(TT_TemplateCloser) && Right.is(tok::l_paren) &&
       Right.isNot(TT_FunctionTypeLParen))
-    return Style.SpaceBeforeParens == FormatStyle::SBPO_Always;
+    return Style.SpaceBeforeParens == FormatStyle::SBPO_Always ||
+           (Style.SpaceBeforeParens == FormatStyle::SBPO_NonEmptyParentheses &&
+            Right.ParameterCount >= 1);
   if (Right.is(TT_TemplateOpener) && Left.is(tok::r_paren) &&
       Left.MatchingParen && Left.MatchingParen->is(TT_OverloadedOperatorLParen))
     return false;
@@ -3118,7 +3135,7 @@ bool TokenAnnotator::canBreakBefore(const AnnotatedLine &Line,
     // function f(): a is B { ... }
     // Do not break before is in these cases.
     if (Right.is(Keywords.kw_is)) {
-      const FormatToken* Next = Right.getNextNonComment();
+      const FormatToken *Next = Right.getNextNonComment();
       // If `is` is followed by a colon, it's likely that it's a dict key, so
       // ignore it for this check.
       // For example this is common in Polymer:
