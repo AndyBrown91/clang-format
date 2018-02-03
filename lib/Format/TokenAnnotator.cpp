@@ -2774,8 +2774,10 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
       return false;
     return true;
   }
-  if (Left.is(TT_UnaryOperator))
-    return Right.is(TT_BinaryOperator);
+  if (Left.is(TT_UnaryOperator)) {
+    return (Style.SpaceAfterLogicalNot && Left.is(tok::exclaim)) ||
+           Right.is(TT_BinaryOperator);
+  }
 
   // If the next token is a binary operator or a selector name, we have
   // incorrectly classified the parenthesis as a cast. FIXME: Detect correctly.

@@ -9326,6 +9326,16 @@ TEST_F(FormatTest, ConfigurableSpaceBeforeParens) {
   verifyFormat("int x = int (y);", SomeSpace);
 }
 
+TEST_F(FormatTest, SpaceAfterLogicalNot) {
+  FormatStyle Spaces = getLLVMStyle();
+  Spaces.SpaceAfterLogicalNot = true;
+
+  verifyFormat("bool x = ! y", Spaces);
+  verifyFormat("if (! isFailure())", Spaces);
+  verifyFormat("if (! (a && b))", Spaces);
+  verifyFormat("\"Error!\"", Spaces);
+}
+
 TEST_F(FormatTest, ConfigurableSpacesInParentheses) {
   FormatStyle Spaces = getLLVMStyle();
 
@@ -11115,6 +11125,12 @@ TEST_F(FormatTest, ParsesConfiguration) {
               FormatStyle::SBPO_Never);
   CHECK_PARSE("SpaceAfterControlStatementKeyword: true", SpaceBeforeParens,
               FormatStyle::SBPO_ControlStatements);
+
+  Style.SpaceAfterLogicalNot = false;
+  CHECK_PARSE("SpaceAfterLogicalNot: true", SpaceAfterLogicalNot,
+              true);
+  CHECK_PARSE("SpaceAfterLogicalNot: false", SpaceAfterLogicalNot,
+              false);
 
   Style.ColumnLimit = 123;
   FormatStyle BaseStyle = getLLVMStyle();

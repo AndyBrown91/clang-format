@@ -1612,6 +1612,9 @@ struct FormatStyle {
   /// Defines in which cases to put a space before opening parentheses.
   SpaceBeforeParensOptions SpaceBeforeParens;
 
+  /// Defines whether a space should be placed after a logical `!`
+  bool SpaceAfterLogicalNot;
+
   /// If ``false``, spaces will be removed before range-based for loop
   /// colon.
   /// \code
@@ -1620,7 +1623,7 @@ struct FormatStyle {
   /// \endcode
   bool SpaceBeforeRangeBasedForLoopColon;
 
-  /// If ``true``, spaces may be inserted into ``()``.
+  /// \brief If ``true``, spaces may be inserted into ``()``.
   /// \code
   ///    true:                                false:
   ///    void f( ) {                    vs.   void f() {
@@ -1808,6 +1811,7 @@ struct FormatStyle {
                R.SpaceBeforeCtorInitializerColon &&
            SpaceBeforeInheritanceColon == R.SpaceBeforeInheritanceColon &&
            SpaceBeforeParens == R.SpaceBeforeParens &&
+           SpaceAfterLogicalNot == R.SpaceAfterLogicalNot &&
            SpaceBeforeRangeBasedForLoopColon ==
                R.SpaceBeforeRangeBasedForLoopColon &&
            SpaceInEmptyParentheses == R.SpaceInEmptyParentheses &&
