@@ -7292,9 +7292,15 @@ TEST_F(FormatTest, LayoutCxx11BraceInitializers) {
                ExtraSpaces);
 
   FormatStyle SpaceBeforeBrace = getLLVMStyle();
-  SpaceBeforeBrace.SpaceBeforeCpp11BracedList = true;
+  SpaceBeforeBrace.SpaceBeforeCpp11BracedList = FormatStyle::SBBLO_Always;
   verifyFormat("vector<int> x {1, 2, 3, 4};", SpaceBeforeBrace);
   verifyFormat("f({}, {{}, {}}, MyMap[{k, v}]);", SpaceBeforeBrace);
+
+  SpaceBeforeBrace.SpaceBeforeCpp11BracedList = FormatStyle::SBBLO_NonEmpty;
+  verifyFormat("vector<int> x {1, 2, 3, 4};", SpaceBeforeBrace);
+  verifyFormat("f({}, {{}, {}}, MyMap[{k, v}]);", SpaceBeforeBrace);
+  verifyFormat("auto foo = Foo{};", SpaceBeforeBrace);
+  verifyFormat("explicit Foo() : foo{} {}", SpaceBeforeBrace);
 }
 
 TEST_F(FormatTest, FormatsBracedListsInColumnLayout) {
@@ -10981,7 +10987,6 @@ TEST_F(FormatTest, ParsesConfigurationBools) {
   CHECK_PARSE_BOOL(SpaceAfterCStyleCast);
   CHECK_PARSE_BOOL(SpaceAfterTemplateKeyword);
   CHECK_PARSE_BOOL(SpaceBeforeAssignmentOperators);
-  CHECK_PARSE_BOOL(SpaceBeforeCpp11BracedList);
   CHECK_PARSE_BOOL(SpaceBeforeCtorInitializerColon);
   CHECK_PARSE_BOOL(SpaceBeforeInheritanceColon);
   CHECK_PARSE_BOOL(SpaceBeforeRangeBasedForLoopColon);
@@ -11157,6 +11162,14 @@ TEST_F(FormatTest, ParsesConfiguration) {
               true);
   CHECK_PARSE("SpaceAfterLogicalNot: false", SpaceAfterLogicalNot,
               false);
+
+  Style.SpaceBeforeCpp11BracedList = FormatStyle::SBBLO_Always;
+  CHECK_PARSE("SpaceBeforeCpp11BracedList: Never", SpaceBeforeCpp11BracedList,
+              FormatStyle::SBBLO_Never);
+  CHECK_PARSE("SpaceBeforeCpp11BracedList: NonEmpty",
+              SpaceBeforeCpp11BracedList, FormatStyle::SBBLO_NonEmpty);
+  CHECK_PARSE("SpaceBeforeCpp11BracedList: Always", SpaceBeforeCpp11BracedList,
+              FormatStyle::SBBLO_Always);
 
   Style.ColumnLimit = 123;
   FormatStyle BaseStyle = getLLVMStyle();

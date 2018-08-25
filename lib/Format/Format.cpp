@@ -270,6 +270,16 @@ struct ScalarEnumerationTraits<FormatStyle::SpaceBeforeParensOptions> {
   }
 };
 
+template <>
+struct ScalarEnumerationTraits<FormatStyle::SpaceBeforeCpp11BracedListOptions> {
+  static void
+  enumeration(IO &IO, FormatStyle::SpaceBeforeCpp11BracedListOptions &Value) {
+    IO.enumCase(Value, "Never", FormatStyle::SBBLO_Never);
+    IO.enumCase(Value, "NonEmpty", FormatStyle::SBBLO_NonEmpty);
+    IO.enumCase(Value, "Always", FormatStyle::SBBLO_Always);
+  }
+};
+
 template <> struct MappingTraits<FormatStyle> {
   static void mapping(IO &IO, FormatStyle &Style) {
     // When reading, read the language first, we need it for getPredefinedStyle.
@@ -703,7 +713,7 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
   LLVMStyle.SpaceBeforeRangeBasedForLoopColon = true;
   LLVMStyle.SpaceBeforeAssignmentOperators = true;
-  LLVMStyle.SpaceBeforeCpp11BracedList = false;
+  LLVMStyle.SpaceBeforeCpp11BracedList = FormatStyle::SBBLO_Never;
   LLVMStyle.SpacesInAngles = false;
 
   LLVMStyle.PenaltyBreakAssignment = prec::Assignment;
@@ -921,7 +931,7 @@ FormatStyle getWebKitStyle() {
   Style.ObjCBlockIndentWidth = 4;
   Style.ObjCSpaceAfterProperty = true;
   Style.PointerAlignment = FormatStyle::PAS_Left;
-  Style.SpaceBeforeCpp11BracedList = true;
+  Style.SpaceBeforeCpp11BracedList = FormatStyle::SBBLO_Always;
   return Style;
 }
 
