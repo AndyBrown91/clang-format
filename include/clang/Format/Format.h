@@ -1537,16 +1537,18 @@ struct FormatStyle {
   /// \endcode
   bool SpaceBeforeAssignmentOperators;
 
-  /// If ``true``, a space will be inserted before a C++11 braced list
-  /// used to initialize an object (after the preceding identifier or type).
-  /// \code
-  ///    true:                                  false:
-  ///    Foo foo { bar };               vs.     Foo foo{ bar };
-  ///    Foo {};                                Foo{};
-  ///    vector<int> { 1, 2, 3 };               vector<int>{ 1, 2, 3 };
-  ///    new int[3] { 1, 2, 3 };                new int[3]{ 1, 2, 3 };
-  /// \endcode
-  bool SpaceBeforeCpp11BracedList;
+  /// Different ways to put a space before braced lists.
+  enum SpaceBeforeCpp11BracedListOptions {
+    /// Never put a space before opening parentheses.
+    SBBLO_Never,
+    /// Put a space before braced lists only if the list is not empty i.e. '{}'
+    SBBLO_NonEmpty,
+    /// Always put a space before a braced list.
+    SBBLO_Always,
+  };
+
+  /// Defines in which cases to put a space before braced lists.
+  SpaceBeforeCpp11BracedListOptions SpaceBeforeCpp11BracedList;
 
   /// If ``false``, spaces will be removed before constructor initializer
   /// colon.
