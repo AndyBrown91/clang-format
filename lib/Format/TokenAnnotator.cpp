@@ -2113,6 +2113,12 @@ void TokenAnnotator::calculateFormattingInformation(AnnotatedLine &Line) {
         }
       }
     } else if (Current->SpacesRequiredBefore == 0 &&
+               Current->is(TT_InheritanceColon) &&
+               !(Line.First->isOneOf(tok::kw_case, tok::kw_default) ||
+                 !Current->getNextNonComment() ||
+                 Current->getNextNonComment()->is(tok::semi))) {
+      Current->SpacesRequiredBefore = Style.SpacesBeforeInheritanceColon;
+    } else if (Current->SpacesRequiredBefore == 0 &&
                spaceRequiredBefore(Line, *Current)) {
       Current->SpacesRequiredBefore = 1;
     }
@@ -2756,8 +2762,6 @@ bool TokenAnnotator::spaceRequiredBefore(const AnnotatedLine &Line,
     return true;
   if (Right.is(TT_CtorInitializerColon))
     return Style.SpaceBeforeCtorInitializerColon;
-  if (Right.is(TT_InheritanceColon) && !Style.SpaceBeforeInheritanceColon)
-    return false;
   if (Right.is(TT_RangeBasedForLoopColon) &&
       !Style.SpaceBeforeRangeBasedForLoopColon)
     return false;

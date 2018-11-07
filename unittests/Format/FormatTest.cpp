@@ -9538,7 +9538,7 @@ TEST_F(FormatTest, ConfigurableSpaceBeforeColon) {
                CtorInitializerStyle);
 
   FormatStyle InheritanceStyle = getLLVMStyleWithColumns(30);
-  InheritanceStyle.SpaceBeforeInheritanceColon = false;
+  InheritanceStyle.SpacesBeforeInheritanceColon = 0;
   verifyFormat("class Foo: public Bar {};", InheritanceStyle);
   verifyFormat("Foo::Foo() : foo(1) {}", InheritanceStyle);
   verifyFormat("for (auto a : b) {\n}", InheritanceStyle);
@@ -9596,7 +9596,7 @@ TEST_F(FormatTest, ConfigurableSpaceBeforeColon) {
 
   FormatStyle NoSpaceStyle = getLLVMStyle();
   NoSpaceStyle.SpaceBeforeCtorInitializerColon = false;
-  NoSpaceStyle.SpaceBeforeInheritanceColon = false;
+  NoSpaceStyle.SpacesBeforeInheritanceColon = 0;
   NoSpaceStyle.SpaceBeforeRangeBasedForLoopColon = false;
   verifyFormat("class Foo: public Bar {};", NoSpaceStyle);
   verifyFormat("Foo::Foo(): foo(1) {}", NoSpaceStyle);
@@ -9612,6 +9612,46 @@ TEST_F(FormatTest, ConfigurableSpaceBeforeColon) {
                "default:\n"
                "}",
                NoSpaceStyle);
+
+  FormatStyle OneSpaceStyle = getLLVMStyle();
+  OneSpaceStyle.SpacesBeforeInheritanceColon = 1;
+  verifyFormat("class Foo : public Bar {};", OneSpaceStyle);
+  verifyFormat("public:", OneSpaceStyle);
+  verifyFormat("class Bar : Foo {\n"
+               "public:\n"
+               "};",
+               OneSpaceStyle);
+  verifyFormat("switch (x) {\n"
+               "case 1:\n"
+               "default:\n"
+               "}",
+               OneSpaceStyle);
+  verifyFormat("int x = a ? b : c;", OneSpaceStyle);
+  verifyFormat("{\n"
+               "label3:\n"
+               "  int x = 0;\n"
+               "}",
+               OneSpaceStyle);
+
+  FormatStyle TwoSpaceStyle = getLLVMStyle();
+  TwoSpaceStyle.SpacesBeforeInheritanceColon = 2;
+  verifyFormat("class Foo  : public Bar {};", TwoSpaceStyle);
+  verifyFormat("public:", TwoSpaceStyle);
+  verifyFormat("class Bar  : Foo {\n"
+               "public:\n"
+               "};",
+               TwoSpaceStyle);
+  verifyFormat("switch (x) {\n"
+               "case 1:\n"
+               "default:\n"
+               "}",
+               TwoSpaceStyle);
+  verifyFormat("int x = a ? b : c;", TwoSpaceStyle);
+  verifyFormat("{\n"
+               "label3:\n"
+               "  int x = 0;\n"
+               "}",
+               TwoSpaceStyle);
 }
 
 TEST_F(FormatTest, AlignConsecutiveAssignments) {
@@ -10962,7 +11002,6 @@ TEST_F(FormatTest, ParsesConfigurationBools) {
   CHECK_PARSE_BOOL(SpaceAfterTemplateKeyword);
   CHECK_PARSE_BOOL(SpaceBeforeAssignmentOperators);
   CHECK_PARSE_BOOL(SpaceBeforeCtorInitializerColon);
-  CHECK_PARSE_BOOL(SpaceBeforeInheritanceColon);
   CHECK_PARSE_BOOL(SpaceBeforeRangeBasedForLoopColon);
 
   CHECK_PARSE_NESTED_BOOL(BraceWrapping, AfterClass);
@@ -11130,6 +11169,14 @@ TEST_F(FormatTest, ParsesConfiguration) {
               FormatStyle::SBPO_Never);
   CHECK_PARSE("SpaceAfterControlStatementKeyword: true", SpaceBeforeParens,
               FormatStyle::SBPO_ControlStatements);
+
+  Style.SpacesBeforeInheritanceColon = 1;
+  CHECK_PARSE("SpacesBeforeInheritanceColon: 0",
+              SpacesBeforeInheritanceColon, 0);
+  CHECK_PARSE("SpacesBeforeInheritanceColon: 1",
+              SpacesBeforeInheritanceColon, 1);
+  CHECK_PARSE("SpacesBeforeInheritanceColon: 2",
+              SpacesBeforeInheritanceColon, 2);
 
   Style.SpaceAfterLogicalNot = false;
   CHECK_PARSE("SpaceAfterLogicalNot: true", SpaceAfterLogicalNot,
