@@ -464,8 +464,8 @@ template <> struct MappingTraits<FormatStyle> {
                    Style.SpaceBeforeCpp11BracedList);
     IO.mapOptional("SpaceBeforeCtorInitializerColon",
                    Style.SpaceBeforeCtorInitializerColon);
-    IO.mapOptional("SpaceBeforeInheritanceColon",
-                   Style.SpaceBeforeInheritanceColon);
+    IO.mapOptional("SpacesBeforeInheritanceColon",
+                   Style.SpacesBeforeInheritanceColon);
     IO.mapOptional("SpaceBeforeParens", Style.SpaceBeforeParens);
     IO.mapOptional("SpaceAfterLogicalNot", Style.SpaceAfterLogicalNot);
     IO.mapOptional("SpaceBeforeRangeBasedForLoopColon",
@@ -709,7 +709,7 @@ FormatStyle getLLVMStyle(FormatStyle::LanguageKind Language) {
   LLVMStyle.SpaceAfterCStyleCast = false;
   LLVMStyle.SpaceAfterTemplateKeyword = true;
   LLVMStyle.SpaceBeforeCtorInitializerColon = true;
-  LLVMStyle.SpaceBeforeInheritanceColon = true;
+  LLVMStyle.SpacesBeforeInheritanceColon = 1;
   LLVMStyle.SpaceBeforeParens = FormatStyle::SBPO_ControlStatements;
   LLVMStyle.SpaceBeforeRangeBasedForLoopColon = true;
   LLVMStyle.SpaceBeforeAssignmentOperators = true;

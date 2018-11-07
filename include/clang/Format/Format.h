@@ -1557,12 +1557,13 @@ struct FormatStyle {
   /// \endcode
   bool SpaceBeforeCtorInitializerColon;
 
-  /// If ``false``, spaces will be removed before inheritance colon.
+  /// The number of spaces to insert before each inheritance colon
   /// \code
-  ///    true:                                  false:
-  ///    class Foo : Bar {}             vs.     class Foo: Bar {}
+  ///    0:     class Foo: Bar {};
+  ///    1:     class Foo : Bar {};
+  ///    2:     class Foo  : Bar {};
   /// \endcode
-  bool SpaceBeforeInheritanceColon;
+  unsigned SpacesBeforeInheritanceColon;
 
   /// Different ways to put a space before opening parentheses.
   enum SpaceBeforeParensOptions {
@@ -1810,7 +1811,7 @@ struct FormatStyle {
            SpaceBeforeCpp11BracedList == R.SpaceBeforeCpp11BracedList &&
            SpaceBeforeCtorInitializerColon ==
                R.SpaceBeforeCtorInitializerColon &&
-           SpaceBeforeInheritanceColon == R.SpaceBeforeInheritanceColon &&
+           SpacesBeforeInheritanceColon == R.SpacesBeforeInheritanceColon &&
            SpaceBeforeParens == R.SpaceBeforeParens &&
            SpaceAfterLogicalNot == R.SpaceAfterLogicalNot &&
            SpaceBeforeRangeBasedForLoopColon ==
